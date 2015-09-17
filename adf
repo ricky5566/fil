@@ -1,0 +1,51 @@
+package com.tcs.ilp.dao;
+
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import com.tcs.ilp.beans.Customer;
+
+public class CustomerDAO 
+{
+	
+	private Connection connect=null;
+	private PreparedStatement preparedStatement1=null;
+	private PreparedStatement preparedStatement2=null;
+	private PreparedStatement preparedStatement3=null;
+	private ResultSet rs=null;
+	
+	
+	public int addCustomerDetails(Customer customer) throws Exception
+	{
+		int custId=0;
+		connect=DBConnection.getConnection();
+		preparedStatement1=connect.prepareStatement("insert into CUSTOMER_963768 values(customer_sequence_963768.nextval,?,?,?,?,?,?)");
+		preparedStatement1.setString(1, customer.getCustomerName());
+		preparedStatement1.setString(2, customer.getPassword());
+		preparedStatement1.setString(3, customer.getPhoneNumber());
+		preparedStatement1.setString(4, customer.getEmailId());
+		preparedStatement1.setDate(5, (Date) customer.getSubscription_From());
+		preparedStatement1.setDate(6, (Date) customer.getSubscription_To());
+		preparedStatement1.executeUpdate();
+		
+		
+		preparedStatement2=connect.prepareStatement("insert into SUBSCRIPTION_963768 values(customer_sequence_963768.currval,?)");
+		preparedStatement2.setString(1, customer.getSitesMagazines());
+		preparedStatement2.executeUpdate();
+		
+		connect.commit();
+	
+		
+		preparedStatement3=connect.prepareStatement("select CUSTOMER_SEQUENCE_963768.currval from dual");
+		rs=preparedStatement3.executeQuery();
+		while(rs.next())
+		{
+			custId=rs.getInt(1);
+		}
+		DBConnection.closeConnection(connect);
+		return custId;
+	}
+
+}
